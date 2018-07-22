@@ -14,22 +14,20 @@
 
     </div>
 
-
-    <div class="divider" data-content="Connected QWIIC Devices"></div>
+    <div class="divider" data-content="Connected QWIIC devices will show up below"></div>
 
     <div class="productList">
 
-
-      <div class="card productItem" v-for="product in productList">
+      <div class="card productItem"  v-for="(product, index) in productList" :key="index">
         <div class="card-image productPhoto">
-          <img src="http://via.placeholder.com/300" class="img-responsive">
+          <img :src="product.imageUrl" class="img-responsive">
         </div>
-        <div class="card-header">
+        <div class="productName">
           <div class="card-title h5">{{product.name}}</div>
           <div class="card-subtitle text-gray">I2C Addr (0x{{product.deviceAddr}})</div>
         </div>
-        <div class="card-footer">
-          <a :href="product.productUrl" class="btn btn-error" target="_blank">Learn More</a>
+        <div class="productFooter">
+          <a :href="product.productUrl" class="btn btn-error float-right" target="_blank">Learn More</a>
         </div>
       </div>
 
@@ -42,6 +40,7 @@
 
 import 'spectre.css/dist/spectre.min.css'
 import 'spectre.css/dist/spectre-icons.min.css'
+import ProductDB from '@/productDB.json'
 import OnionCDK from '@/OnionCDK.js'
 
 export default {
@@ -49,52 +48,32 @@ export default {
   data () {
     return {
       isLoading: false,
-      isAutoRefresh: false,
-      productList: [
-        {
-          deviceAddr: '30',
-          name: 'Example Product asdfasdf adsf asdfa df',
-          imageUrl: '/relative/path/img',
-          productUrl: 'http://via.placeholder.com/300'
-        },
-        {
-          deviceAddr: '33',
-          name: 'Example Product 2',
-          imageUrl: '/relative/path/img',
-          productUrl: 'http://via.placeholder.com/300'
-        },
-        {
-          deviceAddr: '51',
-          name: 'Example Product 3',
-          imageUrl: '/relative/path/img',
-          productUrl: 'http://via.placeholder.com/300'
-        },
-        {
-          deviceAddr: '53',
-          name: 'Example Product 4',
-          imageUrl: '/relative/path/img',
-          productUrl: 'http://via.placeholder.com/300'
-        },
-        {
-          deviceAddr: '5f',
-          name: 'Example Product 5',
-          imageUrl: '/relative/path/img',
-          productUrl: 'http://via.placeholder.com/300'
-        }
-      ]
+      isAutoRefresh: true,
+      productList: []
     }
   },
-  components: {
-    OnionCDK
-  },
+  // components: {
+  //   OnionCDK
+  // },
   mounted () {
     OnionCDK.onCmd = function (command, result) {
       this.isLoading = false
-      console.log(command, result)
+      if (command === 'i2cdetect') {
+        var data = result
+        this.productList = []
+        var deviceList = this.parseData(data)
+        for (var i = 0; i < deviceList.length; i++) {
+          var deviceAddr = deviceList[i]
+          var device = this.lookUpProduct('0x' + deviceAddr.toUpperCase())
+          if (device) this.productList.push(device)
+        }
+      }
     }.bind(this)
 
-    setInterval(function(){
-      if (this.isAutoRefresh) {
+    OnionCDK.init()
+
+    setInterval(function () {
+      if (this.isAutoRefresh && !this.isLoading) {
         this.getData()
       }
     }.bind(this), 1000)
@@ -103,26 +82,34 @@ export default {
     onRefresh () {
       this.getData()
     },
-    getData (deviceAddr, callback) {
-        // data retrieval to be implemented here later
-
-        // hard-coded data for now
-        var data = "     0  1  2  3  4  5  6  7  8  9  a  b  c  d  e  f\n00:          -- -- -- -- -- -- -- -- -- -- -- -- --\n10: UU -- -- -- -- -- -- -- -- -- -- -- -- -- -- --\n20: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --\n30: 30 31 32 33 34 35 36 37 -- -- -- -- -- -- -- --\n40: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --\n50: 50 51 52 53 54 55 56 57 58 59 5a 5b 5c 5d 5e 5f\n60: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --\n70: -- -- -- -- -- -- -- —"
-
-        // callback is the function to:
-        //    parse string
-        //    populate product array
-        // callback(deviceAddr, {
-        //     ch0: a0,
-        //     ch1: a1,
-        //     ch2: a2,
-        //     ch3: a3,
-        // })
-
-        console.log(data)
+    getData () {
+      this.isLoading = true
+      OnionCDK.sendCmd('i2cdetect', ['-y', '0'])
+    },
+    parseData (data) {
+      var result = []
+      for (var line of data.split('\n')) {
+        line = line.split(':')
+        if (line.length > 1) {
+          for (var addr of line[1].split(' ')) {
+            if (['UU', '--', ' ', '', '-', '—'].indexOf(addr) > -1) continue
+            result.push(addr)
+          }
+        }
+      }
+      return result
+    },
+    lookUpProduct (deviceAddr) {
+      // console.log(deviceAddr)
+      for (var i = 0; i < ProductDB.length; i++) {
+        // console.log(`${ProductDB[i].deviceAddr} === ${deviceAddr}`)
+        if (ProductDB[i].deviceAddr === deviceAddr) {
+          return ProductDB[i]
+        }
+      }
+      return null
     }
   }
-
 }
 </script>
 
@@ -147,25 +134,40 @@ body {
 }
 
 .productList {
-  margin-top: 20px;
+  margin-top: 10px;
   display: flex;
-  align-items: flex-start;
-  flex-direction: row;
-  flex-wrap: wrap;
+  /* align-items: flex-start; */
+  flex-direction: column;
+  /* flex-wrap: wrap; */
 }
 
 .productPhoto img {
-  width: 375px;
-  height: 375px;
+  width: auto;
+  height: 150px;
 }
-
 
 .refreshBtn {
   margin-right: 20px;
 }
 
-.productItem {
-  margin: 10px;
+.card {
+  margin: 5px;
+  flex-direction: row!important;
+}
+
+.productName {
+  margin: auto;
+}
+
+.productFooter {
+  margin: auto;
+  margin-right: 20px;
+}
+
+.onlineBadge {
+  width: 20px;
+  height: 20px;
+  background-color: red
 }
 
 </style>
