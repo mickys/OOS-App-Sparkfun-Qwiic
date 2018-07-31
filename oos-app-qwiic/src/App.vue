@@ -24,7 +24,7 @@
         </div>
         <div class="productName">
           <div class="card-title h5">{{product.name}}</div>
-          <div class="card-subtitle text-gray">I2C Addr (0x{{product.deviceAddr}})</div>
+          <div class="card-subtitle text-gray">I2C Addr ({{product.deviceAddr}})</div>
         </div>
         <div class="productFooter">
           <a :href="product.productUrl" class="btn btn-error float-right" target="_blank">Learn More</a>

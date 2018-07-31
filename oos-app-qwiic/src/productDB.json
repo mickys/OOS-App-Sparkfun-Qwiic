@@ -1,15 +1,9 @@
 [
   {
     "name": "Distance Sensor Breakout - \n4 Meter, VL53L1X",
-    "deviceAddr": "0x52",
+    "deviceAddr": "0x29",
     "productUrl": "https://www.sparkfun.com/products/14722",
     "imageUrl": "static/14722.jpg"
-  },
-  {
-    "name": "Differential I2C Breakout - PCA9615",
-    "deviceAddr": "0x5B",
-    "productUrl": "https://www.sparkfun.com/products/14589",
-    "imageUrl": "static/14589.jpg"
   },
   {
     "name": "Real Time Clock Module - RV",
@@ -43,7 +37,7 @@
   },
   {
     "name": "VR IMU Breakout - BNO080",
-    "deviceAddr": "0x4AB",
+    "deviceAddr": "0x4B",
     "productUrl": "https://www.sparkfun.com/products/14686",
     "imageUrl": "static/14686.jpg"
   },
