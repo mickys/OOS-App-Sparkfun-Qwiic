@@ -28,6 +28,7 @@
         </div>
         <div class="productFooter">
           <a :href="product.productUrl" class="btn btn-error float-right" target="_blank">Learn More</a>
+          <a class="btn float-right disabled mt-2 tooltip tooltip-right" data-tooltip="Coming Soon">Interact</a>
         </div>
       </div>
 
@@ -162,6 +163,7 @@ body {
 .productFooter {
   margin: auto;
   margin-right: 20px;
+  display: inline-grid;
 }
 
 .onlineBadge {
