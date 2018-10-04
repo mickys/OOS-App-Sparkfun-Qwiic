@@ -1,5 +1,5 @@
 {
-  "id": "oos-app-qwiic",
+  "id": "oos-app-sparkfun-qwiic",
   "name": "Sparkfun Qwiic",
   "icon": "sf_logo.svg",
   "description": "Detect connected Qwiic devices"
