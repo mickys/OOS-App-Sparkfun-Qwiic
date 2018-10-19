@@ -50,13 +50,14 @@
         <div class="modal-body">
           <div class="content">
             <component
-              :is="interactProduct.component"/>
+            :is="interactProduct.component"
+            ref="activeProduct"
+            />
           </div>
         </div>
 
       </div>
     </div>
-
 
   </div>
 </template>
@@ -83,7 +84,6 @@ export default {
     }
   },
   mounted () {
-    console.log(ProductDB)
     OnionCDK.onCmd = function (command, result) {
       this.isLoading = false
       if (command === 'i2cdetect') {
@@ -96,6 +96,14 @@ export default {
           if (device) this.productList.push(device)
         }
       }
+    }.bind(this)
+
+    OnionCDK.onInit = function () {
+      OnionCDK.subscribe('/console/app-thermal')
+    }
+
+    OnionCDK.onMessage = function (topic, content) {
+      if (this.$refs.activeProduct) this.$refs.activeProduct.onMessage(topic, content)
     }.bind(this)
 
     OnionCDK.init()
@@ -205,6 +213,12 @@ body {
 .modal-container {
   border-radius: 20px;
   padding: 0;
+  height: 600px;
+  max-width: 800px;
+}
+
+.modal-container .modal-body {
+  height: 100%;
 }
 
 .product-modal-title {
