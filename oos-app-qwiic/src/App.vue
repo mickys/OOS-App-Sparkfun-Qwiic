@@ -14,7 +14,7 @@
 
     </div>
 
-    <div class="divider" data-content="Connected QWIIC devices will show up below"></div>
+    <div class="divider text-center" data-content="Connected QWIIC devices will show up below"></div>
 
     <div class="productList">
 
@@ -27,12 +27,36 @@
           <div class="card-subtitle text-gray">I2C Addr ({{product.deviceAddr}})</div>
         </div>
         <div class="productFooter">
-          <a :href="product.productUrl" class="btn btn-error float-right" target="_blank">Learn More</a>
-          <a class="btn float-right disabled mt-2 tooltip tooltip-right" data-tooltip="Coming Soon">Interact</a>
+          <a v-if="product.component" class="btn btn-success float-right mt-2" @click="interact(product)">Interact</a>
+          <a :href="product.productUrl" class="btn btn-link float-right" target="_blank">Learn More</a>
         </div>
       </div>
 
     </div>
+
+    <div class="modal active" v-if="interactProduct">
+      <a class="modal-overlay" @click="interact(null)"></a>
+      <div class="modal-container">
+        <div class="modal-header">
+          <a class="btn btn-clear float-right" @click="interact(null)"></a>
+          <div class="product-modal-title">
+            <img class="header-image" :src="interactProduct.imageUrl" alt="">
+            <div class="modal-title">
+              <div class="h5">{{interactProduct.name}}</div>
+              <div class="text-gray">I2C Addr ({{interactProduct.deviceAddr}})</div>
+            </div>
+          </div>
+        </div>
+        <div class="modal-body">
+          <div class="content">
+            <component
+              :is="interactProduct.component"/>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
 
   </div>
 </template>
@@ -41,22 +65,25 @@
 
 import 'spectre.css/dist/spectre.min.css'
 import 'spectre.css/dist/spectre-icons.min.css'
-import ProductDB from '@/productDB.json'
+import ProductDB from '@/productDB.js'
 import OnionCDK from '@/OnionCDK.js'
+import AppAMG8833 from '@/AppAMG8833'
 
 export default {
   name: 'App',
+  components: {
+    AppAMG8833
+  },
   data () {
     return {
       isLoading: false,
       isAutoRefresh: true,
+      interactProduct: null,
       productList: []
     }
   },
-  // components: {
-  //   OnionCDK
-  // },
   mounted () {
+    console.log(ProductDB)
     OnionCDK.onCmd = function (command, result) {
       this.isLoading = false
       if (command === 'i2cdetect') {
@@ -80,6 +107,9 @@ export default {
     }.bind(this), 1000)
   },
   methods: {
+    interact (product) {
+      this.interactProduct = product
+    },
     onRefresh () {
       this.getData()
     },
@@ -170,6 +200,26 @@ body {
   width: 20px;
   height: 20px;
   background-color: red
+}
+
+.modal-container {
+  border-radius: 20px;
+  padding: 0;
+}
+
+.product-modal-title {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
+
+.product-modal-title img {
+  height: 60px;
+  border-radius: 50%;
+}
+
+.product-modal-title .modal-title {
+  margin-left:10px;
 }
 
 </style>
