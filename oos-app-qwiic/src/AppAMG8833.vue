@@ -28,14 +28,15 @@
       </div>
     </div>
 
-    <div class="grid">
+    <div class="loading loading-lg" v-show="thermalArray.length === 0"></div>
+    <div class="" v-show="thermalArray.length === 0"> Starting ... </div>
+    <div class="grid" v-show="thermalArray.length > 0">
       <div
       v-for="(pix, index) in thermalArray"
       class="pixel tooltip"
       :data-tooltip="`${pix}`"
       :style="pixelColor(pix)"
       :key="`index-${index}`"
-
       ></div>
     </div>
   </div>
@@ -53,7 +54,12 @@ export default {
       monoChrome: false
     }
   },
-  created () { },
+  created () {
+    this.$emit('onCreated', 'oos-qwiic-amg8833')
+  },
+  destroyed () {
+    this.$emit('onDestroyed', 'oos-qwiic-amg8833')
+  },
   computed: {
     colorScale () {
       var tDiff = this.maxT - this.minT
@@ -62,7 +68,7 @@ export default {
   },
   methods: {
     onMessage (topic, content) {
-      if (topic === '/console/qwiic-thermal') this.$set(this, 'thermalArray', JSON.parse(content))
+      if (topic === '/console/qwiic-amg8833') this.$set(this, 'thermalArray', JSON.parse(content))
     },
     pixelColor (temp) {
       var value = (temp - this.minT) / (this.maxT - this.minT)
