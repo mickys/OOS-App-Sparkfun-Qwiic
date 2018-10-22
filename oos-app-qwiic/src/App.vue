@@ -51,6 +51,8 @@
           <div class="content">
             <component
             :is="interactProduct.component"
+            @onCreated = "onCreated"
+            @onDestroyed = "onDestroyed"
             ref="activeProduct"
             />
           </div>
@@ -103,7 +105,7 @@ export default {
     }.bind(this)
 
     OnionCDK.onInit = function () {
-      OnionCDK.subscribe('/console/qwiic-thermal')
+      OnionCDK.subscribe('/console/qwiic-amg8833')
       OnionCDK.subscribe('/console/qwiic-env')
       OnionCDK.subscribe('/console/qwiic-vl53l1x')
     }
@@ -121,6 +123,16 @@ export default {
     }.bind(this), 1000)
   },
   methods: {
+    onCreated (service) {
+      console.log('app created')
+      console.log(service)
+      OnionCDK.service(service, 'start')
+    },
+    onDestroyed (service) {
+      console.log('app destroyed')
+      console.log(service)
+      OnionCDK.service(service, 'stop')
+    },
     interact (product) {
       this.interactProduct = product
     },
