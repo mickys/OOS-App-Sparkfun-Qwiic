@@ -55,7 +55,7 @@ func amg8833_readPixels() ([]float32) {
   var val float32
   var buf []float32
   var offset uint8 = 128
-  for i := uint8(0); i < 64; i += 2 {
+  for i := uint8(0); i < 128; i += 2 {
     // fmt.Println("reading from reg", i+offset)
 		raw, err = i2c.ReadRegU16LE(i+offset)
     // fmt.Printf("read from 0x%02x: 0x%04x\n", i+offset, raw)
