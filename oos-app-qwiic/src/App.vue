@@ -69,11 +69,13 @@ import 'spectre.css/dist/spectre-icons.min.css'
 import ProductDB from '@/productDB.js'
 import OnionCDK from '@/OnionCDK.js'
 import AppAMG8833 from '@/AppAMG8833'
+import AppEnvironmental from '@/AppEnvironmental'
 
 export default {
   name: 'App',
   components: {
-    AppAMG8833
+    AppAMG8833,
+    AppEnvironmental
   },
   data () {
     return {
@@ -99,7 +101,8 @@ export default {
     }.bind(this)
 
     OnionCDK.onInit = function () {
-      OnionCDK.subscribe('/console/app-thermal')
+      OnionCDK.subscribe('/console/qwiic-thermal')
+      OnionCDK.subscribe('/console/qwiic-env')
     }
 
     OnionCDK.onMessage = function (topic, content) {

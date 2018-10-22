@@ -62,7 +62,7 @@ export default {
   },
   methods: {
     onMessage (topic, content) {
-      this.$set(this, 'thermalArray', JSON.parse(content))
+      if (topic === '/console/qwiic-thermal') this.$set(this, 'thermalArray', JSON.parse(content))
     },
     pixelColor (temp) {
       var value = (temp - this.minT) / (this.maxT - this.minT)

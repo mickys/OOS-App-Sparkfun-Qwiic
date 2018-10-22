@@ -65,13 +65,15 @@ export default [
     name: 'Environmental Combo Breakout - CCS811',
     deviceAddr: '0x5A',
     productUrl: 'https://www.sparkfun.com/products/14348',
-    imageUrl: 'static/14348.jpg'
+    imageUrl: 'static/14348.jpg',
+    component: 'AppEnvironmental'
   },
   {
     name: 'Environmental Combo Breakout - CCS811',
     deviceAddr: '0x5B',
     productUrl: 'https://www.sparkfun.com/products/14348',
-    imageUrl: 'static/14348.jpg'
+    imageUrl: 'static/14348.jpg',
+    component: 'AppEnvironmental'
   },
   {
     name: 'Environmental Combo Breakout - BME280',
@@ -83,7 +85,8 @@ export default [
     name: 'Environmental Combo Breakout - BME280',
     deviceAddr: '0x77',
     productUrl: 'https://www.sparkfun.com/products/14348',
-    imageUrl: 'static/14348.jpg'
+    imageUrl: 'static/14348.jpg',
+    component: 'AppEnvironmental'
   },
   {
     name: 'Spectral Sensor Breakout - AS7263 NIR',
