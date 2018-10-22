@@ -2,7 +2,7 @@ package main
 
 import (
   "log"
-  "fmt"
+  // "fmt"
   "time"
 	"github.com/d2r2/go-i2c"
 )
@@ -58,7 +58,7 @@ func amg8833_readPixels() ([]float32) {
   for i := uint8(0); i < 64; i += 2 {
     // fmt.Println("reading from reg", i+offset)
 		raw, err = i2c.ReadRegU16LE(i+offset)
-    fmt.Printf("read from 0x%02x: 0x%04x\n", i+offset, raw)
+    // fmt.Printf("read from 0x%02x: 0x%04x\n", i+offset, raw)
     val = twoCompl12(raw) * float32(AMG8833_PIXEL_TEMP_CONVERSION)
     buf = append(buf, val)
 	}

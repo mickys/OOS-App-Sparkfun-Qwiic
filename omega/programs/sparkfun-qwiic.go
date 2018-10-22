@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"encoding/json"
 )
 
 const (
@@ -13,10 +14,13 @@ func setup() {
 }
 
 func main() {
-	fmt.Println("Hello, world.", privateHelperFunc())
+	// fmt.Println("Hello, world.", privateHelperFunc())
 
 	setup()
 
 	var pixels []float32 = amg8833_readPixels()
-	fmt.Println(pixels)
+	// fmt.Println(pixels)
+
+	jsonPixels, _ := json.Marshal(pixels)
+	fmt.Println(string(jsonPixels))
 }

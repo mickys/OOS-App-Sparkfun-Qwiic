@@ -8,7 +8,7 @@ if [ "$1" == "" ]; then
 fi
 
 echo "Compiling go program"
-GOOS=linux GOARCH=mipsle go build -o ./sparkfun-qwiic
+GOOS=linux GOARCH=mipsle go build -ldflags="-s -w" -o ./sparkfun-qwiic
 
 if [ $? -eq 0 ]; then
 	# thermal script
