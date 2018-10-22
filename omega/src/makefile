@@ -14,6 +14,7 @@ SOURCES := $(shell find $(SRCDIR) -maxdepth 1 -type f \( -iname "*.$(SRCEXT)" ! 
 OBJECTS := $(patsubst $(SRCDIR)/%,$(BUILDDIR)/%,$(SOURCES:.$(SRCEXT)=.o))
 CFLAGS := -g -fPIC # -Wall
 INC := $(shell find $(INCDIR) -maxdepth 1 -type d -exec echo -I {}  \;)
+LIB := -loniondebug -lonioni2c
 TARGET := sparkfun-qwiic
 
 all: $(TARGET)
@@ -27,3 +28,7 @@ $(TARGET): $(OBJECTS)
 $(BUILDDIR)/%.o: $(SRCDIR)/%.$(SRCEXT)
 	@mkdir -p $(dir $@)
 	@echo " $(CC) $(CFLAGS) $(INC) -c -o $@ $<"; $(CC) $(CFLAGS) $(INC) -c -o $@ $<
+
+clean: 
+	@echo " Cleaning..."; 
+	$(RM) -r $(TARGET) $(BUILDDIR) $(BINDIR) $(LIBDIR)
