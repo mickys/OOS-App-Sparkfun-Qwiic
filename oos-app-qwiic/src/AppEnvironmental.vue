@@ -1,7 +1,12 @@
 <template>
 
   <div class="qwiicEnvApp">
-    <div class="reading" :style="{color: r.color}" v-for="(r, key) in readings" :key="key">
+    <div class="" v-if="!started">
+      <div class="loading loading-lg"></div>
+      <div class=""> Starting ... </div>
+    </div>
+
+    <div class="reading" v-if="started" :style="{color: r.color}" v-for="(r, key) in readings" :key="key">
       <div class="reading-value"  >
         <span class="h1">{{r.value}}</span>
         <span class="h5" v-html="r.unit">{{r.unit}}</span>
@@ -16,6 +21,7 @@
 export default {
   data () {
     return {
+      started: false,
       readings: {
         temperature: {
           value: 23.4,
@@ -50,17 +56,23 @@ export default {
       }
     }
   },
-  created () { },
+  created () {
+    this.$emit('onCreated', 'oos-qwiic-env')
+  },
+  destroyed () {
+    this.$emit('onDestroyed', 'oos-qwiic-env')
+  },
   computed: {
   },
   methods: {
     onMessage (topic, content) {
       if (topic === '/console/qwiic-env') {
-        this.$set(this.readings.temperature, 'value', JSON.parse(content).temperature)
-        this.$set(this.readings.humidity, 'value', JSON.parse(content).humidity)
-        this.$set(this.readings.pressure, 'value', JSON.parse(content).pressure)
-        this.$set(this.readings.co2, 'value', JSON.parse(content).co2)
-        this.$set(this.readings.tvoc, 'value', JSON.parse(content).tvoc)
+        this.$set(this.readings.temperature, 'value', JSON.parse(content).temperature.toFixed(2))
+        this.$set(this.readings.humidity, 'value', JSON.parse(content).humidity.toFixed(2))
+        this.$set(this.readings.pressure, 'value', JSON.parse(content).pressure.toFixed(1))
+        this.$set(this.readings.co2, 'value', JSON.parse(content).co2.toFixed(1))
+        this.$set(this.readings.tvoc, 'value', JSON.parse(content).tvoc.toFixed(1))
+        this.started = true
       }
     }
   }

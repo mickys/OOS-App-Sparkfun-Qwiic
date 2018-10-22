@@ -1,7 +1,8 @@
 #include "amg8833.h"
 #include <stdint.h>
 #include <stdlib.h>
-// #include <onion-i2c.h>
+#include <onion-i2c.h>
+#include <stdio.h>	// tmp while we printf debug
 
 int amg8833_setup() {
 	int status;
@@ -17,14 +18,34 @@ int amg8833_setup() {
 	return status;
 }
 
-int amg8833_readPixels() {
+// two's complement 
+/* 	def twoCompl12(self, val):
+		if  0x7FF & val == val:
+			return float(val)
+		else:
+			return float(val-4096 )*/
+			
+uint16_t twoComplement(uint16_t input) {
+	if (0x7ff & input == input) {
+		return input;
+	} else {
+		return (uint16_t)(input-4096);
+	}
+}
+			
+
+int amg8833_readPixels(float *pixelData) {
 	uint8_t	*rdBuffer = malloc(2 * sizeof(uint8_t));
+	float val; 
 
-
-	for (int i = 0; i < 128; i+=2) {
+	for (int i = 0; i < 64; i++) {
 		// read two bytes at a time
-		i2c_read(AMG8833_I2C_DEV_NUM, AMG8833_I2C_DEV_ADDR, i + 128, rdBuffer, 2);
-		printf("0x%02x 0x%02x\n", rdBuffer[0], rdBuffer[1]);
+		i2c_read(AMG8833_I2C_DEV_NUM, AMG8833_I2C_DEV_ADDR, i*2 + 128, rdBuffer, 2);
+		val = (float)twoComplement( ((rdBuffer[1] & 0xff) << 8) | (rdBuffer[0] & 0xff) ) * AMG8833_PIXEL_TEMP_CONVERSION;
+		pixelData[i] = val;
+		
+		// printf("%d: 0x%02x 0x%02x,   %.01f\n", i, rdBuffer[1], rdBuffer[0], val);
+		printf("%.01f\n", val);
 	}
 
 
