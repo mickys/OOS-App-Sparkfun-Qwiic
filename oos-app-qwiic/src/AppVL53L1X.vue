@@ -1,9 +1,13 @@
 <template>
 
   <div class="VL53L1XApp">
-    <div class="distance-label h1"> {{distance}} mm
+
+    <div class="loading loading-lg" v-if="distance === '--'"></div>
+    <div class="" v-if="distance === '--'"> Starting ... </div>
+
+    <div class="distance-label h1" v-if="distance !== '--'"> {{distance}} mm
     </div>
-    <div class="bar distance-bar">
+    <div class="bar distance-bar" v-if="distance !== '--'">
       <div class="bar-item" role="progressbar" :style="{width: `${distancePercent}%`}">
       </div>
     </div>
@@ -15,9 +19,15 @@
 export default {
   data () {
     return {
-      distance: 0,
+      distance: '--',
       maxDistance: 2000
     }
+  },
+  created () {
+    this.$emit('onCreated', 'oos-qwiic-vl53l1x')
+  },
+  destroyed () {
+    this.$emit('onDestroyed', 'oos-qwiic-vl53l1x')
   },
   computed: {
     distancePercent () {

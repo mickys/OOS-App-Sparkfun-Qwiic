@@ -124,13 +124,9 @@ export default {
   },
   methods: {
     onCreated (service) {
-      console.log('app created')
-      console.log(service)
       OnionCDK.service(service, 'start')
     },
     onDestroyed (service) {
-      console.log('app destroyed')
-      console.log(service)
       OnionCDK.service(service, 'stop')
     },
     interact (product) {
