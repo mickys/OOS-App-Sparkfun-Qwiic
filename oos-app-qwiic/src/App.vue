@@ -70,12 +70,14 @@ import ProductDB from '@/productDB.js'
 import OnionCDK from '@/OnionCDK.js'
 import AppAMG8833 from '@/AppAMG8833'
 import AppEnvironmental from '@/AppEnvironmental'
+import AppVL53L1X from '@/AppVL53L1X'
 
 export default {
   name: 'App',
   components: {
     AppAMG8833,
-    AppEnvironmental
+    AppEnvironmental,
+    AppVL53L1X
   },
   data () {
     return {
@@ -103,6 +105,7 @@ export default {
     OnionCDK.onInit = function () {
       OnionCDK.subscribe('/console/qwiic-thermal')
       OnionCDK.subscribe('/console/qwiic-env')
+      OnionCDK.subscribe('/console/qwiic-vl53l1x')
     }
 
     OnionCDK.onMessage = function (topic, content) {
@@ -216,7 +219,7 @@ body {
 .modal-container {
   border-radius: 20px;
   padding: 0;
-  height: 600px;
+  /* height: 600px; */
   max-width: 800px;
 }
 
