@@ -1,5 +1,5 @@
-#if !defined(AMG8833_H_INCLUDED)
-#define AMG8833_H_INCLUDED
+#if !defined(_AMG8833_H_INCLUDED)
+#define _AMG8833_H_INCLUDED
 
 #define AMG8833_I2C_DEV_NUM 		0
 #define AMG8833_I2C_DEV_ADDR 		0x69
@@ -21,4 +21,4 @@ int amg8833_setup();
 int amg8833_readPixels(float *pixelData);
 
 
-#endif	/* AMG8833_H_INCLUDED */
+#endif	/* _AMG8833_H_INCLUDED */
