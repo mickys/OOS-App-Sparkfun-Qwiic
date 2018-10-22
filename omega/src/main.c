@@ -1,8 +1,16 @@
-#include "amg8833.h"
 #include <stdlib.h>
+#include <stdio.h>
+#include <unistd.h>
+#include <string.h>
 
-#define MQ_HOST 	"localhost"
-#define MQ_PORT 	1883
+#include "messageQueue.h"
+#include "amg8833.h"
+
+
+void printUsage(char* progName) {
+	printf("Usage: %s <DEVICE>\n", progName);
+	printf("\nAvailable devices:\n\t%s\n\n", AMG8833_DEV_NAME);
+}
 
 int amg8833_device() {
 	int status;
@@ -28,18 +36,29 @@ int amg8833_device() {
 int main(int argc, char *argv[]) {
 	int status = 0;
 	
-	printf("Program version: %s %s\n", __DATE__, __TIME__);
+	// check for arguments
+	if (argc < 2) {
+		printUsage(argv[0]);
+		return 1;
+	}
 	
 	// initialize message queue
-	status = initMessageQueue(MQ_HOST, MQ_PORT);
+	status = initMessageQueue(MQ_DEFAULT_HOST, MQ_DEFAULT_PORT);
 	if (status != EXIT_SUCCESS) {
 		printf("ERROR: Unable to connect to MQTT broker\n");
 		return 1;
 	}
 	waitMessageQueueConnected();
+	
+	// check which device is to be used
+	if (strcmp(argv[1], AMG8833_DEV_NAME) == 0) {
+		status = amg8833_device();	
+	}
+	else {
+		printf("ERROR: Unknown device!\n");
+		printUsage(argv[0]);
+	}
 
-	status = amg8833_device();
-
-
+	destroyMessageQueue();
 	return 0;
 }

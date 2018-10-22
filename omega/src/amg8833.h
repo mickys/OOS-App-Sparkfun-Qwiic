@@ -1,6 +1,8 @@
 #if !defined(_AMG8833_H_INCLUDED)
 #define _AMG8833_H_INCLUDED
 
+#define AMG8833_DEV_NAME            "AMG8833"
+
 #define AMG8833_I2C_DEV_NUM 		0
 #define AMG8833_I2C_DEV_ADDR 		0x69
 
@@ -19,6 +21,8 @@
 // functions
 int amg8833_setup();
 int amg8833_readPixels(float *pixelData);
+
+void amg8833_generateJsonArray(float *pixelData, char *json);
 
 
 #endif	/* _AMG8833_H_INCLUDED */
