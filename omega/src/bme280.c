@@ -6,6 +6,7 @@
 // global variables
 struct SensorSettings settings;
 struct SensorCalibration calibration;
+int32_t t_fine;
 
 uint8_t readRegister(uint8_t addr)
 {
@@ -15,10 +16,18 @@ uint8_t readRegister(uint8_t addr)
     return (uint8_t)val;
 }
 
-void writeRegister(uint8_t addr, uint8_t data)
+int writeRegister(uint8_t addr, uint8_t data)
 {
     int status;
     status = i2c_write(BME280_I2C_DEV_NUM, settings.I2CAddress, addr, (uint8_t)data);
+    return status;
+}
+
+int readRegisterRegion(uint8_t *rdBuffer , uint8_t addr, uint8_t length)
+{
+    int status;
+    status = i2c_read(BME280_I2C_DEV_NUM, settings.I2CAddress, addr, rdBuffer, length);  
+    return status;
 }
 
 
@@ -153,6 +162,8 @@ int bme280_setup(int devAddr, int runMode, int tStandby, int filter, int tempOve
 	settings.pressOverSample = pressOverSample; // default: 1
 	settings.humidOverSample = humidOverSample; // default: 1
 	
+	t_fine = (int32_t)0;
+	
     // allow sensor to turn on
     usleep(BME280_SLEEP_MS * 1000);
     
@@ -196,3 +207,98 @@ int bme280_setup(int devAddr, int runMode, int tStandby, int filter, int tempOve
 	    return EXIT_FAILURE;
 	}
 }
+
+float bme280_readTemperature( void )
+{
+    int status;
+    // Returns temperature in DegC, resolution is 0.01 DegC. Output value of “5123” equals 51.23 DegC.
+    // t_fine carries fine temperature as global value
+    
+    //get the reading (adc_T);
+    uint8_t *buffer = malloc(3 * sizeof(uint8_t));
+    status = readRegisterRegion(buffer, BME280_TEMPERATURE_MSB_REG, 3);
+    // onion.io: assuming this type of byte alignment when reading: 2,1,0
+    // int32_t adc_T = ((uint32_t)buffer[2] << 12) | ((uint32_t)buffer[1] << 4) | ((buffer[0] >> 4) & 0x0F);
+    int32_t adc_T = ((uint32_t)buffer[0] << 12) | ((uint32_t)buffer[1] << 4) | ((buffer[2] >> 4) & 0x0F);
+#if BME280_DEBUG == 1
+    printf("temp read: 0x%02x, 0x%02x, 0x%02x; adc_T = 0x%08x\n", buffer[0], buffer[1], buffer[2], adc_T);
+#endif // BME280_DEBUG
+
+    //By datasheet, calibrate
+    int64_t var1, var2;
+    
+    var1 = ((((adc_T>>3) - ((int32_t)calibration.dig_T1<<1))) * ((int32_t)calibration.dig_T2)) >> 11;
+    var2 = (((((adc_T>>4) - ((int32_t)calibration.dig_T1)) * ((adc_T>>4) - ((int32_t)calibration.dig_T1))) >> 12) *
+    ((int32_t)calibration.dig_T3)) >> 14;
+    t_fine = var1 + var2;
+    float output = (t_fine * 5 + 128) >> 8;
+    
+    output = output / 100;
+    
+    free(buffer);
+    return output;
+}
+
+float bme280_readHumidity( void )
+{
+    // Returns humidity in %RH as unsigned 32 bit integer in Q22. 10 format (22 integer and 10 fractional bits).
+    // Output value of “47445” represents 47445/1024 = 46. 333 %RH
+    uint8_t *buffer = malloc(2 * sizeof(uint8_t));
+    readRegisterRegion(buffer, BME280_HUMIDITY_MSB_REG, 2);
+    // onion.io: assuming this type of byte alignment when reading: 1,0
+    // int32_t adc_H = ((uint32_t)buffer[1] << 8) | ((uint32_t)buffer[0]);
+    int32_t adc_H = ((uint32_t)buffer[0] << 8) | ((uint32_t)buffer[1]);
+    
+#if BME280_DEBUG == 1
+    printf("humidity read: 0x%02x, 0x%02x; adc_H = 0x%08x\n", buffer[0], buffer[1], adc_H);
+#endif // BME280_DEBUG
+    
+    int32_t var1;
+    var1 = (t_fine - ((int32_t)76800));
+    var1 = (((((adc_H << 14) - (((int32_t)calibration.dig_H4) << 20) - (((int32_t)calibration.dig_H5) * var1)) +
+    ((int32_t)16384)) >> 15) * (((((((var1 * ((int32_t)calibration.dig_H6)) >> 10) * (((var1 * ((int32_t)calibration.dig_H3)) >> 11) + ((int32_t)32768))) >> 10) + ((int32_t)2097152)) *
+    ((int32_t)calibration.dig_H2) + 8192) >> 14));
+    var1 = (var1 - (((((var1 >> 15) * (var1 >> 15)) >> 7) * ((int32_t)calibration.dig_H1)) >> 4));
+    var1 = (var1 < 0 ? 0 : var1);
+    var1 = (var1 > 419430400 ? 419430400 : var1);
+    
+    free(buffer);
+    return (float)(var1>>12) / 1024.0;
+}
+
+float bme280_readPressure( void )
+{
+
+	// Returns pressure in Pa as unsigned 32 bit integer in Q24.8 format (24 integer bits and 8 fractional bits).
+	// Output value of “24674867” represents 24674867/256 = 96386.2 Pa = 963.862 hPa
+    uint8_t *buffer = malloc(3 * sizeof(uint8_t));
+	readRegisterRegion(buffer, BME280_PRESSURE_MSB_REG, 3);
+	// onion.io: assuming this type of byte alignment when reading: 2,1,0
+// 	int32_t adc_P = ((uint32_t)buffer[2] << 12) | ((uint32_t)buffer[1] << 4) | ((buffer[0] >> 4) & 0x0F);
+    int32_t adc_P = ((uint32_t)buffer[0] << 12) | ((uint32_t)buffer[1] << 4) | ((buffer[2] >> 4) & 0x0F);
+    
+#if BME280_DEBUG == 1
+    printf("pressure read: 0x%02x, 0x%02x, 0x%02x; adc_P = 0x%08x\n", buffer[0], buffer[1], buffer[2], adc_P);
+#endif // BME280_DEBUG
+	
+	int64_t var1, var2, p_acc;
+	var1 = ((int64_t)t_fine) - 128000;
+	var2 = var1 * var1 * (int64_t)calibration.dig_P6;
+	var2 = var2 + ((var1 * (int64_t)calibration.dig_P5)<<17);
+	var2 = var2 + (((int64_t)calibration.dig_P4)<<35);
+	var1 = ((var1 * var1 * (int64_t)calibration.dig_P3)>>8) + ((var1 * (int64_t)calibration.dig_P2)<<12);
+	var1 = (((((int64_t)1)<<47)+var1))*((int64_t)calibration.dig_P1)>>33;
+	if (var1 == 0)
+	{
+		return 0; // avoid exception caused by division by zero
+	}
+	p_acc = 1048576 - adc_P;
+	p_acc = (((p_acc<<31) - var2)*3125)/var1;
+	var1 = (((int64_t)calibration.dig_P9) * (p_acc>>13) * (p_acc>>13)) >> 25;
+	var2 = (((int64_t)calibration.dig_P8) * p_acc) >> 19;
+	p_acc = ((p_acc + var1 + var2) >> 8) + (((int64_t)calibration.dig_P7)<<4);
+	
+	free(buffer);
+	return (float)p_acc / 256.0;
+}
+

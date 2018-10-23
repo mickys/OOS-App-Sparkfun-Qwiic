@@ -7,7 +7,7 @@
 #define BME280_DEV_NAME            "BME280"
 
 #define BME280_I2C_DEV_NUM 		    0
-#define BME280_I2C_DEV_ADDR 		0x69
+#define BME280_I2C_DEV_ADDR 		0x77
 
 // register definitions
 #define BME280_DIG_T1_LSB_REG			0x88
@@ -105,6 +105,11 @@ struct SensorCalibration
 };
 
 
+int     bme280_setup        (int devAddr, int runMode, int tStandby, int filter, int tempOverSample, int pressOverSample, int humidOverSample);
+
+float   bme280_readTemperature  ( void );
+float   bme280_readHumidity     ( void );
+float   bme280_readPressure     ( void );
 
 
 #endif	/* _BME280_H_INCLUDED */
