@@ -11,7 +11,7 @@ int envComboSetup() {
     if (status != EXIT_SUCCESS) {
         printf("ERROR: could not initialize CCS811 device\n");
     }
-    printf("CCS811 status is 0x%02x\n", ccs811_checkStatus());
+    // printf("CCS811 status is 0x%02x\n", ccs811_checkStatus());
     
     status = bme280_setup(   
                 BME280_I2C_DEV_ADDR,    // I2C device addr
@@ -26,41 +26,35 @@ int envComboSetup() {
     return status;
 }
 
-int envComboRead() {
-    int status;
-    float temp, humidity, pressure;
-    uint16_t CO2, tVOC;
+int envComboRead(float *temp, float *humidity, float *pressure, uint16_t *CO2, uint16_t *tVOC) {
+    int status = EXIT_SUCCESS;
     
-    while (1) {
-        temp = bme280_readTemperature();
-        humidity = bme280_readHumidity();
-        pressure = bme280_readPressure();
-        
-        // write temperature and humidity data to CCS811
-        ccs811_setEnvironmentalData(humidity, temp);
-        printf("CCS811 status is 0x%02x\n", ccs811_checkStatus());
-        
-        sleep(2);
-        printf("Temperature: %.02f C\n", temp);
-        printf("Humidity:    %.02f %% RH\n", humidity);
-        printf("Pressure:    %.02f Pa\n", pressure);
-        printf("CCS811 status is 0x%02x\n", ccs811_checkStatus());
-        if (ccs811_dataAvailable())
-        {
-            status = ccs811_readAlgorithmResults(&CO2, &tVOC);
-            if (status != EXIT_SUCCESS) {
-                printf("ERROR: reading data from CCS811\n");
-            } else {
-                printf("CO2:    %d ppm\n", CO2);
-                printf("tVOC:   %d ppb\n", tVOC);
-                printf("CCS811 status is 0x%02x\n", ccs811_checkStatus());
-            }
-        } else {
-            printf("CCS811 sensor has no data\n");
-            printf("  error code: 0x%02x\n", ccs811_getErrorRegister());
-        }
+    // read BME280 sensor
+    (*temp) = bme280_readTemperature();
+    (*humidity) = bme280_readHumidity();
+    (*pressure) = bme280_readPressure();
+    // convert pressure from Pa to kPa
+    (*pressure) = (*pressure) / 1000.0;
+    // write temperature and humidity data to CCS811
+    ccs811_setEnvironmentalData((*humidity), (*temp));
+    
+    // read from CCS811
+    if (ccs811_dataAvailable())
+    {
+        status = ccs811_readAlgorithmResults(CO2, tVOC);
+        if (status != EXIT_SUCCESS) {
+            printf("ERROR: reading data from CCS811\n");
+        } 
+    } else {
+        // printf("CCS811 sensor has no data\n");
+        // printf("  error code: 0x%02x\n", ccs811_getErrorRegister());
+        (*CO2) = 0;
+        (*tVOC) = 0;
     }
     
     return status;
 }
 
+void envComboGenerateJson(char *json, float temp, float humidity, float pressure, uint16_t CO2, uint16_t tVOC) {
+    sprintf(json, "{\"temperature\":%f, \"humidity\":%f, \"pressure\":%f, \"co2\":%d, \"tvoc\":%d}", temp, humidity, pressure, CO2, tVOC);
+}

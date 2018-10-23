@@ -1,5 +1,6 @@
 #include <stdlib.h>
 #include <stdio.h>
+#include <stdint.h>
 #include <unistd.h>
 #include <string.h>
 
@@ -37,21 +38,23 @@ int amg8833_device() {
 
 int envComboDevice() {
 	int status;
-	// char *msgData = malloc(512 * sizeof(char));
+	float temp, humidity, pressure;
+	uint16_t CO2, tVOC;
+	char *msgData = malloc(512 * sizeof(char));
 	
 	status = envComboSetup();
-	envComboRead();
 
 	// infinite loop
-	// while (status == EXIT_SUCCESS) {
-	// 	status = amg8833_readPixels(pixelData);
-	// 	amg8833_generateJsonArray(pixelData, msgData);
-	// 	// printf("msg: '%s'\n", msgData);
-	// 	sendMessage("/console/qwiic-amg8833", msgData);
+	while (status == EXIT_SUCCESS) {
+		envComboRead(&temp, &humidity, &pressure, &CO2, &tVOC);
+		envComboGenerateJson(msgData, temp, humidity, pressure, CO2, tVOC);
+		// printf("msg: '%s'\n", msgData);
+		sendMessage("/console/qwiic-env", msgData);
 		
-	// 	usleep(AMG8833_SLEEP_MS * 1000);
-	// }
+		usleep(ENV_COMBO_SLEEP_MS * 1000);
+	}
 	
+	free(msgData);
 	return status;
 }
 
