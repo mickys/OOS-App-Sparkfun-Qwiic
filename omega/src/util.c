@@ -16,6 +16,7 @@ uint16_t readRegister16(uint8_t devAddr, uint8_t addr) {
     int status, length;
     length = 2;
     status = i2c_read(OMEGA_I2C_DEV_NUM, devAddr, addr, rdBuffer, length);  
+    // printf("readRegister16: read from 0x%02x: 0x%02x, 0x%02x\n", addr, rdBuffer[1], rdBuffer[0]);
     return ( ((uint16_t)rdBuffer[1] << 8) | rdBuffer[0] );
 }
 

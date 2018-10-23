@@ -7,11 +7,12 @@
 #include "messageQueue.h"
 #include "amg8833.h"
 #include "environmentalCombo.h"
+#include "vl53l1x.h"
 
 
 void printUsage(char* progName) {
 	printf("Usage: %s <DEVICE>\n", progName);
-	printf("\nAvailable devices:\n\t%s\n\t%s\n", AMG8833_DEV_NAME, ENV_COMBO_DEV_NAME);
+	printf("\nAvailable devices:\n\t%s\n\t%s\n\t%s\n\n", AMG8833_DEV_NAME, ENV_COMBO_DEV_NAME, VL53L1X_DEV_NAME);
 }
 
 int amg8833_device() {
@@ -58,6 +59,31 @@ int envComboDevice() {
 	return status;
 }
 
+int vl53l1x_device() {
+	int status;
+	uint16_t data;
+	char *msgData = malloc(512 * sizeof(char));
+	
+	status = vl53l1x_setup();
+	// printf("vl53l1x_setup returned %d\n", status);
+
+	// infinite loop
+	while (status == EXIT_SUCCESS) {
+		if (vl53l1x_newDataReady()) {
+			data = vl53l1x_getDistance();
+			// printf("distance: %d\n", data);
+			sprintf(msgData, "%d", data);
+			// printf("msg: '%s'\n", msgData);
+			sendMessage("/console/qwiic-vl53l1x", msgData);
+		}
+		
+		usleep(VL53L1X_SLEEP_MS * 1000);
+	}
+	
+	free(msgData);
+	return status;
+}
+
 
 int main(int argc, char *argv[]) {
 	int status = 0;
@@ -83,6 +109,9 @@ int main(int argc, char *argv[]) {
 	}
 	else if (strcmp(argv[1], ENV_COMBO_DEV_NAME) == 0) {
 		status = envComboDevice();	
+	}
+	else if (strcmp(argv[1], VL53L1X_DEV_NAME) == 0) {
+		status = vl53l1x_device();	
 	}
 	else {
 		printf("ERROR: Unknown device!\n");
