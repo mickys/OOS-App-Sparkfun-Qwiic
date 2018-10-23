@@ -28,6 +28,8 @@ int envComboSetup() {
 
 int envComboRead(float *temp, float *humidity, float *pressure, uint16_t *CO2, uint16_t *tVOC) {
     int status = EXIT_SUCCESS;
+    int count = 0;
+    int maxCount = 5;
     
     // read BME280 sensor
     (*temp) = bme280_readTemperature();
@@ -39,13 +41,19 @@ int envComboRead(float *temp, float *humidity, float *pressure, uint16_t *CO2, u
     ccs811_setEnvironmentalData((*humidity), (*temp));
     
     // read from CCS811
-    if (ccs811_dataAvailable())
-    {
-        status = ccs811_readAlgorithmResults(CO2, tVOC);
-        if (status != EXIT_SUCCESS) {
-            printf("ERROR: reading data from CCS811\n");
+    while (count < maxCount) {
+        if (ccs811_dataAvailable())
+        {
+            status = ccs811_readAlgorithmResults(CO2, tVOC);
+            if (status != EXIT_SUCCESS) {
+                printf("ERROR: reading data from CCS811\n");
+            } 
+            break;
         } 
-    } else {
+        count++;
+        usleep(50 * 1000);
+    }
+    if (count >= maxCount) {
         // printf("CCS811 sensor has no data\n");
         // printf("  error code: 0x%02x\n", ccs811_getErrorRegister());
         (*CO2) = 0;
