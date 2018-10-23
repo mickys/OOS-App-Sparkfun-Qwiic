@@ -1,6 +1,8 @@
 #if !defined(_CCS811_H_INCLUDED)
 #define _CCS811_H_INCLUDED
 
+#define CCS811_DEBUG                0
+
 #define CCS811_DEV_NAME            "CCS811"
 
 #define CCS811_I2C_DEV_NUM 		    0

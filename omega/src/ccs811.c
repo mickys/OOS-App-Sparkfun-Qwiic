@@ -143,14 +143,17 @@ int ccs811_readAlgorithmResults( uint16_t *CO2, uint16_t *tVOC )
 	int status;
 	int len = 4;
 	uint8_t *data = malloc(len * sizeof(uint8_t));
-// 	status = multiReadRegister(CCS811_ALG_RESULT_DATA, data, 4);
+#if CCS811_DEBUG == 1
     printf("> reading %d bytes from i2c-%d device 0x%02x, addr 0x%02x\n", len, CCS811_I2C_DEV_NUM, devAddr, CCS811_ALG_RESULT_DATA);
+#endif // CCS811_DEBUG
     status = i2c_read(CCS811_I2C_DEV_NUM, devAddr, CCS811_ALG_RESULT_DATA, data, len);
 	if( status != EXIT_SUCCESS ) return status;
-	// Data ordered:
-	// co2MSB, co2LSB, tvocMSB, tvocLSB
-// 	printf("read: 0x%02x, 0x%02x, 0x%02x, 0x%02x\n", data[7], data[6], data[5], data[4]);
+#if CCS811_DEBUG == 1
 	printf("read: 0x%02x, 0x%02x, 0x%02x, 0x%02x\n", data[3], data[2], data[1], data[0]);
+#endif // CCS811_DEBUG
+	// Data ordered:
+	// 0       1       2        3 
+	// co2MSB, co2LSB, tvocMSB, tvocLSB
 	
 	(*CO2) = ((uint16_t)data[0] << 8) | data[1];
 	(*tVOC) = ((uint16_t)data[2] << 8) | data[3];
