@@ -31,5 +31,13 @@
 
 int     ccs811_setup        ();
 
+uint8_t ccs811_getErrorRegister         ( void );
+uint8_t ccs811_checkStatus              ( void );
+
+int     ccs811_dataAvailable            ( void );
+
+int     ccs811_readAlgorithmResults     ( uint16_t *CO2, uint16_t *tVOC );
+
+int     ccs811_setEnvironmentalData     ( float relativeHumidity, float temperature );
 
 #endif	/* _CCS811_H_INCLUDED */
