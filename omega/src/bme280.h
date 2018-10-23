@@ -3,6 +3,7 @@
 
 #include <stdint.h>
 
+#define BME280_DEBUG                0
 
 #define BME280_DEV_NAME            "BME280"
 
