@@ -1,4 +1,4 @@
-SUBDIRS := omega
+SUBDIRS := src
 
 all: $(SUBDIRS)
 $(SUBDIRS):
