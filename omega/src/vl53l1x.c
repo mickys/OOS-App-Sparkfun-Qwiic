@@ -32,9 +32,9 @@ uint8_t configBlock[] = {
 //Reset sensor via software
 void vl53l1x_softReset()
 {
-    writeRegister(devAddr, VL53L1_SOFT_RESET, 0x00); //Reset
+    addr16_writeRegister(devAddr, VL53L1_SOFT_RESET, 0x00); //Reset
     usleep(1000); //Driver uses 100us
-    writeRegister(devAddr, VL53L1_SOFT_RESET, 0x01); //Exit reset
+    addr16_writeRegister(devAddr, VL53L1_SOFT_RESET, 0x01); //Exit reset
 }
 
 //Write the configuration block with a max of I2C_BUFFER_LENGTH bytes at a time
@@ -44,13 +44,32 @@ void vl53l1x_softReset()
 //capturing I2C trace on ST Nucleo demo board
 int vl53l1x_startMeasurement(uint8_t offset)
 {
-    int status, length;
+    int status, addrLength, dataLength;
+    uint8_t address = 1 + offset; //Start at memory location 0x01, add offset
+    addrLength = 2;
+    
+    uint8_t *addrBuffer = malloc(addrLength * sizeof(uint8_t));
+    // split the address into bytes
+    addrBuffer[1] = address;
+    addrBuffer[0] = 0;
+    
+    dataLength = sizeof(configBlock);
+    
+    // perform the write 
+    status = i2c_writeMultiByteAddr(OMEGA_I2C_DEV_NUM, devAddr, addrBuffer, addrLength, configBlock, dataLength);
+    
+    free(addrBuffer);
+    return status;
+    
+    /*int status, length;
     uint8_t address = 1 + offset; //Start at memory location 0x01, add offset
     length = sizeof(configBlock);
     // printf(" > vl53l1x_startMeasurement about to send %d bytes of configBlock\n", length);
     status = i2c_writeBuffer(VL53L1X_I2C_DEV_NUM, devAddr, address, configBlock, length);
+    printf(" > vl53l1x_startMeasurement write buffer of size %d starting at addr: 0x%02x\n", length, address);
+    // for (int i = 0; i < length; i++) printf(" %d: 0x%02x\n", i, configBlock[i]);
     
-    return status;
+    return status;*/
     /*
     uint8_t leftToSend = sizeof(configBlock) - offset;
     while (leftToSend > 0)
@@ -84,28 +103,31 @@ int vl53l1x_setup()
     int status;
     devAddr = VL53L1X_I2C_DEV_ADDR;
     
-//   //Check the device ID
-//   uint16_t modelID = readRegister16(devAddr, VL53L1_IDENTIFICATION__MODEL_ID);
-//   if (modelID != 0xEACC) return (EXIT_FAILURE);
+    //Check the device ID
+    uint16_t modelID = addr16_readRegister16(devAddr, VL53L1_IDENTIFICATION__MODEL_ID);
+#if VL53L1X_DEBUG == 1
+    printf("VL53L1X returned modelId: 0x%04x\n", modelID);
+#endif // UTIL_DEBUG
+    if (modelID != 0xEACC) return (EXIT_FAILURE);
     
     vl53l1x_softReset();
     
     //Polls the bit 0 of the FIRMWARE__SYSTEM_STATUS register to see if the firmware is ready
     int counter = 0;
-    while (readRegister16(devAddr, VL53L1_FIRMWARE__SYSTEM_STATUS) & 0x01 == 0)
+    while (addr16_readRegister16(devAddr, VL53L1_FIRMWARE__SYSTEM_STATUS) & 0x01 == 0)
     {
         if (counter++ == 100) return EXIT_FAILURE; //Sensor timed out
         usleep(10*1000);
     }
     
     //Set I2C to 2.8V mode. In this mode 3.3V I2C is allowed.
-    uint16_t result = readRegister16(devAddr, VL53L1_PAD_I2C_HV__EXTSUP_CONFIG);
+    uint16_t result = addr16_readRegister16(devAddr, VL53L1_PAD_I2C_HV__EXTSUP_CONFIG);
     result = (result & 0xFE) | 0x01;
-    writeRegister16(devAddr, VL53L1_PAD_I2C_HV__EXTSUP_CONFIG, result);
+    addr16_writeRegister16(devAddr, VL53L1_PAD_I2C_HV__EXTSUP_CONFIG, result);
     
     //Gets trim resistors from chip
     for (uint16_t i = 0; i < 36; i++) {
-        uint8_t regVal = readRegisterReturn(devAddr, i + 1);
+        uint8_t regVal = addr16_readRegister(devAddr, i + 1);
         configBlock[i] = regVal;
     }
     status = vl53l1x_startMeasurement(0);
@@ -116,11 +138,11 @@ int vl53l1x_setup()
 //Polls the measurement completion bit
 int vl53l1x_newDataReady()
 {
-    if (readRegisterReturn(devAddr, VL53L1_GPIO__TIO_HV_STATUS) != 0x03) return(1); //New measurement!
+    if (addr16_readRegister(devAddr, VL53L1_GPIO__TIO_HV_STATUS) != 0x03) return(1); //New measurement!
     return(0); //No new data
 }
 
 uint16_t vl53l1x_getDistance()
 {
-    return (readRegister16(devAddr, VL53L1_RESULT__FINAL_CROSSTALK_CORRECTED_RANGE_MM_SD0));
+    return (addr16_readRegister16(devAddr, VL53L1_RESULT__FINAL_CROSSTALK_CORRECTED_RANGE_MM_SD0));
 }

@@ -87,7 +87,7 @@ int vl53l1x_device() {
 
 int main(int argc, char *argv[]) {
 	int status = 0;
-	printf("Program version: %s %s\n", __DATE__, __TIME__);
+	// printf("Program version: %s %s\n", __DATE__, __TIME__);
 	
 	// check for arguments
 	if (argc < 2) {
