@@ -26,7 +26,7 @@ define Package/oos-app-sparkfun-qwiic
 	SECTION:=onion
 	CATEGORY:=Onion
 	SUBMENU:=OS
-	TITLE:=Sparkfun Qwiic : Sensor measurement dashboard
+	TITLE:=Sparkfun Qwiic : Detect and interact with Sparkfun Qwiic devices
 	DEPENDS:=+libonioni2c +libmosquitto
 endef
 
@@ -42,7 +42,9 @@ define Package/oos-app-sparkfun-qwiic/install
 	# install the program
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/omega/src/sparkfun-qwiic $(1)/usr/bin/
 	# install the init.d scripts
-	#$(INSTALL_BIN) $(PKG_BUILD_DIR)/omega/src/sparkfun-qwiic $(1)/etc/init.d
+	$(INSTALL_BIN) $(PKG_BUILD_DIR)/omega/init.d/oos-qwiic-amg8833 $(1)/etc/init.d/
+	$(INSTALL_BIN) $(PKG_BUILD_DIR)/omega/init.d/oos-qwiic-env $(1)/etc/init.d/
+	$(INSTALL_BIN) $(PKG_BUILD_DIR)/omega/init.d/oos-qwiic-vl53l1x $(1)/etc/init.d/
 endef
 
 
