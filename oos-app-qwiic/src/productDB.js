@@ -1,6 +1,6 @@
 export default [
   {
-    name: 'Distance Sensor Breakout - \n4 Meter, VL53L1X',
+    name: 'Distance Sensor Breakout - 4 Meter, VL53L1X',
     deviceAddr: '0x29',
     productUrl: 'https://www.sparkfun.com/products/14722',
     imageUrl: 'static/14722.jpg',

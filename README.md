@@ -1,6 +1,6 @@
-# oos-app-qwiic
+# oos-app-sparkfun-qwiic
 
-> QWIIC App for the Onion OS
+> Sparkfun QWIIC App for the Onion OS
 
 ## Build Setup
 
@@ -21,7 +21,3 @@ npm run build --report
 
 For a detailed explanation on how things work, check out the [guide](http://vuejs-templates.github.io/webpack/) and [docs for vue-loader](http://vuejs.github.io/vue-loader).
 
-## TO DO
-
-* Add /etc/init.d scripts to repo
-* Add /etc/init.d scripts to pkg makefile

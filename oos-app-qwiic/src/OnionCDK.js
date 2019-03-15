@@ -22,21 +22,6 @@ export default {
       command: command
     })
   },
-  // createService: function (name) {
-  //   // var serviceStatus = 'stopped'
-  //   // TODO: init iframe call go get service status
-  //   return {
-  //     status (callback) {
-  //       // this.service
-  //     },
-  //     start () {
-  //
-  //     },
-  //     stop () {
-  //
-  //     }
-  //   }
-  // },
   sendEvent: function (event, content) {
     var eventId = makeId()
     window.parent.postMessage({
