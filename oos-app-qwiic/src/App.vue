@@ -175,7 +175,7 @@ body {
 }
 #app {
   width: 100%;
-  max-width: 800px;
+  max-width: 2560px;
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -227,8 +227,13 @@ body {
 .modal-container {
   border-radius: 20px;
   padding: 0;
-  /* height: 600px; */
-  max-width: 800px;
+  margin: 0 auto;
+  /*
+   height: 600px;
+   max-width: 800px;
+  */
+  max-width: none !important;
+  width: auto !important;
 }
 
 .modal-container .modal-body {

@@ -7,4 +7,4 @@ if [ "$1" == "" ]; then
 	exit
 fi
 
-rsync -va omega/www/ root@"$1":/www/apps/oos-app-qwiic/
+rsync -va omega/www/ root@"$1":/www/apps/oos-app-sparkfun-qwiic/
