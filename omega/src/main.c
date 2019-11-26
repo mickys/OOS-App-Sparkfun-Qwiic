@@ -3,6 +3,7 @@
 #include <stdint.h>
 #include <unistd.h>
 #include <string.h>
+#include <libconfig.h>
 
 #include "messageQueue.h"
 #include "amg8833.h"
@@ -95,8 +96,44 @@ int main(int argc, char *argv[]) {
 		return 1;
 	}
 	
+	config_t cfg;
+	config_setting_t *setting;
+	const char *server;
+	const char *port;
+	const char *certificate;
+
+	config_init(&cfg);
+
+	/* Read the file. If there is an error, report it and exit. */
+	if(! config_read_file(&cfg, "/etc/env-reporter/config.cfg"))
+	{
+		fprintf(stderr, "%s:%d - %s\n", config_error_file(&cfg),
+				config_error_line(&cfg), config_error_text(&cfg));
+		config_destroy(&cfg);
+		return(EXIT_FAILURE);
+	}
+
+	/* Get the server name. */
+	if(config_lookup_string(&cfg, "server", &server))
+		printf("Server name: %s\n\n", server);
+	else
+		fprintf(stderr, "No 'server' setting in configuration file.\n");
+
+	/* Get the port. */
+	if(config_lookup_string(&cfg, "port", &port))
+		printf("port: %s\n\n", port);
+	else
+		fprintf(stderr, "No 'port' setting in configuration file.\n");
+
+	/* Get the certificate file. */
+	if(config_lookup_string(&cfg, "certificate", &certificate))
+		printf("certificate: %s\n\n", certificate);
+	else
+		fprintf(stderr, "No 'certificate' setting in configuration file.\n");
+
+
 	// initialize message queue
-	status = initMessageQueue(MQ_DEFAULT_HOST, MQ_DEFAULT_PORT);
+	status = initMessageQueue(server, port, certificate);
 	if (status != EXIT_SUCCESS) {
 		printf("ERROR: Unable to connect to MQTT broker\n");
 		return 1;
