@@ -50,7 +50,7 @@ void mqtt_disconnect_callback(struct mosquitto *mosq, void *userdata, int rc) {
 	// TODO: potentially attempt to reconnect here?
 }
 
-int messageQueueConnect(char* host, int port, char* certificate) {
+int messageQueueConnect(const char* host, int port, const char* certificate) {
 	printf("initializing message queue\n");
     bConnected = 0;
     
@@ -89,7 +89,7 @@ int messageQueueConnect(char* host, int port, char* certificate) {
 }
 
 // API functions
-int initMessageQueue(char* host, int port, char* certificate) {
+int initMessageQueue(const char* host, int port, const char* certificate) {
 	int count = 0;
 	int status = EXIT_FAILURE;
 	

@@ -15,7 +15,7 @@ OBJECTS := $(patsubst $(SRCDIR)/%,$(BUILDDIR)/%,$(SOURCES:.$(SRCEXT)=.o))
 CFLAGS := -g -fPIC # -Wall
 INC := $(shell find $(INCDIR) -maxdepth 1 -type d -exec echo -I {}  \;)
 LIB := -loniondebug -lonioni2c -lmosquitto -lssl -lcrypto -lcares -lconfig
-TARGET := sparkfun-qwiic
+TARGET := env-reporter
 
 all: $(TARGET)
 

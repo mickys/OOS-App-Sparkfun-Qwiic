@@ -98,9 +98,9 @@ int main(int argc, char *argv[]) {
 	
 	config_t cfg;
 	config_setting_t *setting;
-	char* server;
+	const char* server;
 	int port;
-	char* certificate;
+	const char* certificate;
 
 	config_init(&cfg);
 
@@ -120,7 +120,7 @@ int main(int argc, char *argv[]) {
 		fprintf(stderr, "No 'server' setting in configuration file.\n");
 
 	/* Get the port. */
-	if(config_lookup_string(&cfg, "port", &port))
+	if(config_lookup_int(&cfg, "port", &port))
 		printf("port: %s\n\n", port);
 	else
 		fprintf(stderr, "No 'port' setting in configuration file.\n");
