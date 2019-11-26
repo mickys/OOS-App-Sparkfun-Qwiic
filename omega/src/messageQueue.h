@@ -4,7 +4,7 @@
 #define MQ_DEFAULT_HOST 	"localhost"
 #define MQ_DEFAULT_PORT 	1883
 
-int     initMessageQueue        (char* host, int port);
+int     initMessageQueue        (char* host, int port, char* certificate);
 void    destroyMessageQueue     ();
 
 void    waitMessageQueueConnected ();
