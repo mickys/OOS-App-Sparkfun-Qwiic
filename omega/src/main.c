@@ -98,9 +98,9 @@ int main(int argc, char *argv[]) {
 	
 	config_t cfg;
 	config_setting_t *setting;
-	const char *server;
-	const char *port;
-	const char *certificate;
+	char* server;
+	int port;
+	char* certificate;
 
 	config_init(&cfg);
 
