@@ -3,8 +3,8 @@
 START=60
 
 USE_PROCD=1
-BIN="sparkfun-qwiic"
-OPT="AMG8833"
+BIN="env-reporter"
+OPT="ENV_COMBO"
 
 start_service() {
         procd_open_instance
