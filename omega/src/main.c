@@ -117,6 +117,7 @@ int main(int argc, char *argv[]) {
 	/* Get the identifier. */
 	if(!config_lookup_string(&cfg, "identifier", &identifier)) {
 		fprintf(stderr, "No 'identifier' setting in configuration file.\n");
+		return(EXIT_FAILURE);
 	} else {
 		printf("Identifier: %s\n", identifier);
 	}
@@ -124,6 +125,7 @@ int main(int argc, char *argv[]) {
 	/* Get the server name. */
 	if(!config_lookup_string(&cfg, "server", &server)) {
 		fprintf(stderr, "No 'server' setting in configuration file.\n");
+		return(EXIT_FAILURE);
 	} else {
 		printf("Server name: %s\n", server);
 	}
@@ -131,6 +133,7 @@ int main(int argc, char *argv[]) {
 	/* Get the port. */
 	if(!config_lookup_int(&cfg, "port", &port)) {
 		fprintf(stderr, "No 'port' setting in configuration file.\n");
+		return(EXIT_FAILURE);
 	} else {
 		printf("port: %d\n", port);
 	}
@@ -138,6 +141,7 @@ int main(int argc, char *argv[]) {
 	/* Get the certificate file. */
 	if(!config_lookup_string(&cfg, "certificate", &certificate)) {
 		fprintf(stderr, "No 'certificate' setting in configuration file.\n");
+		return(EXIT_FAILURE);
 	} else {
 		printf("certificate: %s\n", certificate);
 	}
