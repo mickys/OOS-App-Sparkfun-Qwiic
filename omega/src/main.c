@@ -89,13 +89,13 @@ int vl53l1x_device() {
 int main(int argc, char *argv[]) {
 	int status = 0;
 	// printf("Program version: %s %s\n", __DATE__, __TIME__);
-	
+
 	// check for arguments
 	if (argc < 2) {
 		printUsage(argv[0]);
 		return 1;
 	}
-	
+
 	config_t cfg;
 	config_setting_t *setting;
 	const char* server;
@@ -114,23 +114,25 @@ int main(int argc, char *argv[]) {
 	}
 
 	/* Get the server name. */
-	if(config_lookup_string(&cfg, "server", &server))
-		printf("Server name: %s\n\n", server);
-	else
+	if(config_lookup_string(&cfg, "server", &server)) {
+		printf("Server name: %s\n", server);
+	} else {
 		fprintf(stderr, "No 'server' setting in configuration file.\n");
+	}
 
 	/* Get the port. */
-	if(config_lookup_int(&cfg, "port", &port))
-		printf("port: %s\n\n", port);
-	else
+	if(config_lookup_int(&cfg, "port", &port)) {
+		printf("port: %d\n", port);
+	} else {
 		fprintf(stderr, "No 'port' setting in configuration file.\n");
+	}
 
 	/* Get the certificate file. */
-	if(config_lookup_string(&cfg, "certificate", &certificate))
-		printf("certificate: %s\n\n", certificate);
-	else
+	if(config_lookup_string(&cfg, "certificate", &certificate)) {
+		printf("certificate: %s\n", certificate);
+	} else {
 		fprintf(stderr, "No 'certificate' setting in configuration file.\n");
-
+	}
 
 	// initialize message queue
 	status = initMessageQueue(server, port, certificate);
@@ -139,16 +141,16 @@ int main(int argc, char *argv[]) {
 		return 1;
 	}
 	waitMessageQueueConnected();
-	
+
 	// check which device is to be used
 	if (strcmp(argv[1], AMG8833_DEV_NAME) == 0) {
-		status = amg8833_device();	
+		status = amg8833_device();
 	}
 	else if (strcmp(argv[1], ENV_COMBO_DEV_NAME) == 0) {
-		status = envComboDevice();	
+		status = envComboDevice();
 	}
 	else if (strcmp(argv[1], VL53L1X_DEV_NAME) == 0) {
-		status = vl53l1x_device();	
+		status = vl53l1x_device();
 	}
 	else {
 		printf("ERROR: Unknown device!\n");
