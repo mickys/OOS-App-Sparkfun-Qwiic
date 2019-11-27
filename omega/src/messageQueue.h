@@ -9,7 +9,7 @@ void    destroyMessageQueue     ();
 
 void    waitMessageQueueConnected ();
 
-int     sendMessage             (char* topic, char* payload);
+int     sendMessage             (const char* topic, char* payload);
 // int     messageQueueSubscribe   (char* topic);
 
 
