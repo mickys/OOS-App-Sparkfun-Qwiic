@@ -65,5 +65,5 @@ int envComboRead(float *temp, float *humidity, float *pressure, uint16_t *CO2, u
 }
 
 void envComboGenerateJson(char *json, float temp, float humidity, float pressure, uint16_t CO2, uint16_t tVOC, const char* identifier) {
-    sprintf(json, "{\"identifier\":%s,\"temperature\":%f, \"humidity\":%f, \"pressure\":%f, \"co2\":%d, \"tvoc\":%d}", identifier, temp, humidity, pressure, CO2, tVOC);
+    sprintf(json, "{\"identifier\":\"%s\",\"temperature\":%f, \"humidity\":%f, \"pressure\":%f, \"co2\":%d, \"tvoc\":%d}", identifier, temp, humidity, pressure, CO2, tVOC);
 }
