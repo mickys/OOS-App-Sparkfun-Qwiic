@@ -61,7 +61,7 @@ int envComboDevice(const char* identifier, const char* topic) {
 	return status;
 }
 
-int vl53l1x_device(const char* identifier) {
+int vl53l1x_device(const char* identifier, const char* topic) {
 	int status;
 	uint16_t data;
 	char *msgData = malloc(512 * sizeof(char));
