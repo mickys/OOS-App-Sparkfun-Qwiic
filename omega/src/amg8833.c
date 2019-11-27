@@ -53,7 +53,7 @@ int amg8833_readPixels(float *pixelData) {
 	return EXIT_SUCCESS;
 }
 
-void amg8833_generateJsonArray(float *pixelData, char *json) {
+void amg8833_generateJsonArray(float *pixelData, char *json, char* hostname) {
 	int pos = 0;
 	pos += sprintf(&json[pos], "[%.01f", pixelData[0]);
 	for (int i = 1; i < AMG8833_NUM_PIXELS; i++) {

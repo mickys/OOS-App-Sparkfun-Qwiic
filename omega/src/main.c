@@ -4,6 +4,7 @@
 #include <unistd.h>
 #include <string.h>
 #include <libconfig.h>
+#include <limits.h>
 
 #include "messageQueue.h"
 #include "amg8833.h"
@@ -16,7 +17,7 @@ void printUsage(char* progName) {
 	printf("\nAvailable devices:\n\t%s\n\t%s\n\t%s\n\n", AMG8833_DEV_NAME, ENV_COMBO_DEV_NAME, VL53L1X_DEV_NAME);
 }
 
-int amg8833_device() {
+int amg8833_device(char* hostname) {
 	int status;
 	float *pixelData = malloc(AMG8833_NUM_PIXELS * sizeof(float));
 	char *msgData = malloc(512 * sizeof(char));
@@ -26,7 +27,7 @@ int amg8833_device() {
 	// infinite loop
 	while (status == EXIT_SUCCESS) {
 		status = amg8833_readPixels(pixelData);
-		amg8833_generateJsonArray(pixelData, msgData);
+		amg8833_generateJsonArray(pixelData, msgData, hostname);
 		// printf("msg: '%s'\n", msgData);
 		sendMessage("/console/qwiic-amg8833", msgData);
 		
@@ -38,7 +39,7 @@ int amg8833_device() {
 	return status;
 }
 
-int envComboDevice() {
+int envComboDevice(char hostname) {
 	int status;
 	float temp, humidity, pressure;
 	uint16_t CO2, tVOC;
@@ -49,7 +50,7 @@ int envComboDevice() {
 	// infinite loop
 	while (status == EXIT_SUCCESS) {
 		envComboRead(&temp, &humidity, &pressure, &CO2, &tVOC);
-		envComboGenerateJson(msgData, temp, humidity, pressure, CO2, tVOC);
+		envComboGenerateJson(msgData, temp, humidity, pressure, CO2, tVOC, hostname);
 		// printf("msg: '%s'\n", msgData);
 		sendMessage("/console/qwiic-env", msgData);
 		
@@ -60,7 +61,7 @@ int envComboDevice() {
 	return status;
 }
 
-int vl53l1x_device() {
+int vl53l1x_device(char hostname) {
 	int status;
 	uint16_t data;
 	char *msgData = malloc(512 * sizeof(char));
@@ -102,8 +103,11 @@ int main(int argc, char *argv[]) {
 	int port;
 	const char* certificate;
 
-	config_init(&cfg);
+	char hostname[HOST_NAME_MAX + 1];
+	gethostname(hostname, HOST_NAME_MAX + 1);
+	printf("Hostname: %s\n", hostname);
 
+	config_init(&cfg);
 	/* Read the file. If there is an error, report it and exit. */
 	if(! config_read_file(&cfg, "/etc/env-reporter/config.cfg"))
 	{
@@ -114,24 +118,24 @@ int main(int argc, char *argv[]) {
 	}
 
 	/* Get the server name. */
-	if(config_lookup_string(&cfg, "server", &server)) {
-		printf("Server name: %s\n", server);
-	} else {
+	if(!config_lookup_string(&cfg, "server", &server)) {
 		fprintf(stderr, "No 'server' setting in configuration file.\n");
+	} else {
+		printf("Server name: %s\n", server);
 	}
 
 	/* Get the port. */
-	if(config_lookup_int(&cfg, "port", &port)) {
-		printf("port: %d\n", port);
-	} else {
+	if(!config_lookup_int(&cfg, "port", &port)) {
 		fprintf(stderr, "No 'port' setting in configuration file.\n");
+	} else {
+		printf("port: %d\n", port);
 	}
 
 	/* Get the certificate file. */
-	if(config_lookup_string(&cfg, "certificate", &certificate)) {
-		printf("certificate: %s\n", certificate);
-	} else {
+	if(!config_lookup_string(&cfg, "certificate", &certificate)) {
 		fprintf(stderr, "No 'certificate' setting in configuration file.\n");
+	} else {
+		printf("certificate: %s\n", certificate);
 	}
 
 	// initialize message queue
@@ -144,13 +148,13 @@ int main(int argc, char *argv[]) {
 
 	// check which device is to be used
 	if (strcmp(argv[1], AMG8833_DEV_NAME) == 0) {
-		status = amg8833_device();
+		status = amg8833_device(&hostname);
 	}
 	else if (strcmp(argv[1], ENV_COMBO_DEV_NAME) == 0) {
-		status = envComboDevice();
+		status = envComboDevice(&hostname);
 	}
 	else if (strcmp(argv[1], VL53L1X_DEV_NAME) == 0) {
-		status = vl53l1x_device();
+		status = vl53l1x_device(&hostname);
 	}
 	else {
 		printf("ERROR: Unknown device!\n");

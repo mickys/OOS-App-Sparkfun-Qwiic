@@ -22,7 +22,7 @@
 int amg8833_setup();
 int amg8833_readPixels(float *pixelData);
 
-void amg8833_generateJsonArray(float *pixelData, char *json);
+void amg8833_generateJsonArray(float *pixelData, char *json, char* hostname);
 
 
 #endif	/* _AMG8833_H_INCLUDED */
