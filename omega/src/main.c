@@ -115,11 +115,11 @@ int main(int argc, char *argv[]) {
 	}
 
 	/* Get the identifier. */
-	if(!config_lookup_string(&cfg, "identifier", &identifier)) {
-		fprintf(stderr, "No 'identifier' setting in configuration file.\n");
+	if(!config_lookup_string(&cfg, "id", &identifier)) {
+		fprintf(stderr, "No 'id' setting in configuration file.\n");
 		return(EXIT_FAILURE);
 	} else {
-		printf("Identifier: %s\n", identifier);
+		printf("ID: %s\n", identifier);
 	}
 
 	/* Get the server name. */
