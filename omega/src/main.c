@@ -17,7 +17,7 @@ void printUsage(char* progName) {
 	printf("\nAvailable devices:\n\t%s\n\t%s\n\t%s\n\n", AMG8833_DEV_NAME, ENV_COMBO_DEV_NAME, VL53L1X_DEV_NAME);
 }
 
-int amg8833_device(const char* identifier) {
+int amg8833_device(const char* identifier, const char* topic) {
 	int status;
 	float *pixelData = malloc(AMG8833_NUM_PIXELS * sizeof(float));
 	char *msgData = malloc(512 * sizeof(char));
@@ -29,7 +29,7 @@ int amg8833_device(const char* identifier) {
 		status = amg8833_readPixels(pixelData);
 		amg8833_generateJsonArray(pixelData, msgData, identifier);
 		// printf("msg: '%s'\n", msgData);
-		sendMessage("/console/qwiic-amg8833", msgData);
+		sendMessage(topic, msgData);
 		
 		usleep(AMG8833_SLEEP_MS * 1000);
 	}
@@ -39,7 +39,7 @@ int amg8833_device(const char* identifier) {
 	return status;
 }
 
-int envComboDevice(const char* identifier) {
+int envComboDevice(const char* identifier, const char* topic) {
 	int status;
 	float temp, humidity, pressure;
 	uint16_t CO2, tVOC;
@@ -52,7 +52,7 @@ int envComboDevice(const char* identifier) {
 		envComboRead(&temp, &humidity, &pressure, &CO2, &tVOC);
 		envComboGenerateJson(msgData, temp, humidity, pressure, CO2, tVOC, identifier);
 		// printf("msg: '%s'\n", msgData);
-		sendMessage("/console/qwiic-env", msgData);
+		sendMessage(topic, msgData);
 		
 		usleep(ENV_COMBO_SLEEP_MS * 1000);
 	}
@@ -76,7 +76,7 @@ int vl53l1x_device(const char* identifier) {
 			// printf("distance: %d\n", data);
 			sprintf(msgData, "%d", data);
 			// printf("msg: '%s'\n", msgData);
-			sendMessage("/console/qwiic-vl53l1x", msgData);
+			sendMessage(topic, msgData);
 		}
 		
 		usleep(VL53L1X_SLEEP_MS * 1000);
@@ -101,6 +101,7 @@ int main(int argc, char *argv[]) {
 	config_setting_t *setting;
 	const char* server;
 	const char* identifier;
+	const char* topic;	
 	int port;
 	const char* certificate;
 
@@ -120,6 +121,14 @@ int main(int argc, char *argv[]) {
 		return(EXIT_FAILURE);
 	} else {
 		printf("ID: %s\n", identifier);
+	}
+
+	/* Get the topic. */
+	if(!config_lookup_string(&cfg, "topic", &topic)) {
+		fprintf(stderr, "No 'topic' setting in configuration file.\n");
+		return(EXIT_FAILURE);
+	} else {
+		printf("topic: %s\n", topic);
 	}
 
 	/* Get the server name. */
@@ -156,13 +165,13 @@ int main(int argc, char *argv[]) {
 
 	// check which device is to be used
 	if (strcmp(argv[1], AMG8833_DEV_NAME) == 0) {
-		status = amg8833_device(identifier);
+		status = amg8833_device(identifier, topic);
 	}
 	else if (strcmp(argv[1], ENV_COMBO_DEV_NAME) == 0) {
-		status = envComboDevice(identifier);
+		status = envComboDevice(identifier, topic);
 	}
 	else if (strcmp(argv[1], VL53L1X_DEV_NAME) == 0) {
-		status = vl53l1x_device(identifier);
+		status = vl53l1x_device(identifier, topic);
 	}
 	else {
 		printf("ERROR: Unknown device!\n");

@@ -115,7 +115,7 @@ void destroyMessageQueue () {
     mosquitto_lib_cleanup();
 }
 
-int sendMessage (char* topic, char* payload) {
+int sendMessage (const char* topic, char* payload) {
 	int status = 0;
 
 	status = mosquitto_publish(	mosqPtr,
