@@ -23,11 +23,11 @@
 
 
 // functions
-int envComboSetup   ();
+int envComboSetup();
 
-int envComboRead    (float *temp, float *humidity, float *pressure, uint16_t *CO2, uint16_t *tVOC);
-
-void envComboGenerateJson(char *json, float temp, float humidity, float pressure, uint16_t CO2, uint16_t tVOC, const char* identifier);
+int envComboRead(float *temp, float *humidity, float *pressure, uint16_t *CO2, uint16_t *tVOC);
+int envReadDS18(const char* ds18cmd, float* ds18b20);
+void envComboGenerateJson(char *json, float temp, float humidity, float pressure, uint16_t CO2, uint16_t tVOC, const char* identifier, float ds18b20);
 
 
 #endif	/* _ENV_COMBO_H_INCLUDED */

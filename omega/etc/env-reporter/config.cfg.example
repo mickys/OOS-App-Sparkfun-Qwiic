@@ -1,5 +1,18 @@
-id = "omega"; # set this
+# set this
+
+id = "omega";   
+
+# MQTT Relay
 topic = "/console/qwiic-env";
 server = "nowlive.ro";
 port = 8883;
+
+# Certificate Authority
 certificate = "/etc/env-reporter/ca.crt";
+
+# Loop time
+time = 5000;
+
+# make sure to insmod w1-gpio-custom bus0=0,19,0
+# where 19 is the pin we got ds18b20 hooked up to
+ds18cmd = "/usr/bin/awk -F= '/t=/ {printf \"%.06f\\n\", $2/1000}' /sys/devices/w1_bus_master1/28-000006ca39f9/w1_slave"

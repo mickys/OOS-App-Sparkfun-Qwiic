@@ -64,6 +64,40 @@ int envComboRead(float *temp, float *humidity, float *pressure, uint16_t *CO2, u
     return status;
 }
 
-void envComboGenerateJson(char *json, float temp, float humidity, float pressure, uint16_t CO2, uint16_t tVOC, const char* identifier) {
-    sprintf(json, "{\"identifier\":\"%s\",\"temperature\":%f, \"humidity\":%f, \"pressure\":%f, \"co2\":%d, \"tvoc\":%d}", identifier, temp, humidity, pressure, CO2, tVOC);
+int envReadDS18(const char* ds18cmd, float* ds18b20) {
+    FILE *fp;
+    char path[16];
+    int status;
+
+    /* Open the command for reading. */
+    fp = popen(ds18cmd, "r");
+    if (fp == NULL) {
+        printf("Failed to run command\n" );
+        return 0;
+    }
+
+    /* Read the output a line at a time - output it. */
+    while (fgets(path, sizeof(path), fp) != NULL) {
+        (*ds18b20) = strtof(path, NULL);
+    }
+
+    /* close */
+    pclose(fp);
+
+    return status;
+}
+
+
+void envComboGenerateJson(char *json, float temp, float humidity, float pressure, uint16_t CO2, uint16_t tVOC, const char* identifier, float ds18b20) {
+    sprintf(
+        json,
+        "{\"id\":\"%s\", \"temperature\":%f, \"humidity\":%f, \"pressure\":%f, \"co2\":%d, \"tvoc\":%d, \"ds18b20\":%f}",
+        identifier,
+        temp,
+        humidity,
+        pressure,
+        CO2,
+        tVOC,
+        ds18b20
+    );
 }

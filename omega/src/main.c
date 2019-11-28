@@ -39,9 +39,9 @@ int amg8833_device(const char* identifier, const char* topic) {
 	return status;
 }
 
-int envComboDevice(const char* identifier, const char* topic) {
+int envComboDevice(const char* identifier, const char* topic, int time, const char* ds18cmd) {
 	int status;
-	float temp, humidity, pressure;
+	float temp, humidity, pressure, ds18b20;
 	uint16_t CO2, tVOC;
 	char *msgData = malloc(512 * sizeof(char));
 	
@@ -50,11 +50,12 @@ int envComboDevice(const char* identifier, const char* topic) {
 	// infinite loop
 	while (status == EXIT_SUCCESS) {
 		envComboRead(&temp, &humidity, &pressure, &CO2, &tVOC);
-		envComboGenerateJson(msgData, temp, humidity, pressure, CO2, tVOC, identifier);
+		envReadDS18(ds18cmd, &ds18b20);
+		envComboGenerateJson(msgData, temp, humidity, pressure, CO2, tVOC, identifier, ds18b20);
 		// printf("msg: '%s'\n", msgData);
 		sendMessage(topic, msgData);
 		
-		usleep(ENV_COMBO_SLEEP_MS * 1000);
+		usleep(ENV_COMBO_SLEEP_MS * time);
 	}
 	
 	free(msgData);
@@ -99,11 +100,8 @@ int main(int argc, char *argv[]) {
 
 	config_t cfg;
 	config_setting_t *setting;
-	const char* server;
-	const char* identifier;
-	const char* topic;	
-	int port;
-	const char* certificate;
+	const char* server, identifier, topic, certificate, ds18cmd;
+	int port, time;
 
 	config_init(&cfg);
 	/* Read the file. If there is an error, report it and exit. */
@@ -147,6 +145,14 @@ int main(int argc, char *argv[]) {
 		printf("port: %d\n", port);
 	}
 
+	/* Get the time delay. */
+	if(!config_lookup_int(&cfg, "time", &time)) {
+		fprintf(stderr, "No 'time' setting in configuration file.\n");
+		return(EXIT_FAILURE);
+	} else {
+		printf("Loop time: %d\n", time);
+	}
+
 	/* Get the certificate file. */
 	if(!config_lookup_string(&cfg, "certificate", &certificate)) {
 		fprintf(stderr, "No 'certificate' setting in configuration file.\n");
@@ -154,6 +160,15 @@ int main(int argc, char *argv[]) {
 	} else {
 		printf("certificate: %s\n", certificate);
 	}
+
+	/* Get the ds18cmd file. */
+	if(!config_lookup_string(&cfg, "ds18cmd", &ds18cmd)) {
+		fprintf(stderr, "No 'ds18cmd' setting in configuration file.\n");
+		return(EXIT_FAILURE);
+	} else {
+		printf("ds18cmd: %s\n", ds18cmd);
+	}
+
 
 	// initialize message queue
 	status = initMessageQueue(server, port, certificate);
@@ -168,7 +183,7 @@ int main(int argc, char *argv[]) {
 		status = amg8833_device(identifier, topic);
 	}
 	else if (strcmp(argv[1], ENV_COMBO_DEV_NAME) == 0) {
-		status = envComboDevice(identifier, topic);
+		status = envComboDevice(identifier, topic, time, ds18cmd);
 	}
 	else if (strcmp(argv[1], VL53L1X_DEV_NAME) == 0) {
 		status = vl53l1x_device(identifier, topic);
