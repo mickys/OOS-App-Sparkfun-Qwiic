@@ -71,12 +71,17 @@ int envBmeDevice(const char* identifier, const char* topic, int time, const char
 	
 	status = envBmeSetup();
 
+	printf("envBmeDevice status: '%d'\n", status);
+
 	// infinite loop
 	while (status == EXIT_SUCCESS) {
+		printf("brefore envBmeRead\n");
 		envBmeRead(&temp, &humidity, &pressure);
+		printf("brefore envReadDS18\n");
 		envReadDS18(ds18cmd, &ds18b20);
+		printf("brefore envComboGenerateJson\n");
 		envComboGenerateJson(msgData, temp, humidity, pressure, CO2, tVOC, identifier, ds18b20);
-		// printf("msg: '%s'\n", msgData);
+		printf("msg: '%s'\n", msgData);
 		sendMessage(topic, msgData);
 		
 		usleep(ENV_COMBO_SLEEP_MS * time);
