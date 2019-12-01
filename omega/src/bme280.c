@@ -176,13 +176,14 @@ int bme280_setup(int devAddr, int runMode, int tStandby, int filter, int tempOve
 	
 	// initialize the sensor
 	setStandbyTime(settings.tStandby);
-	setFilter(settings.filter);
+	// setFilter(settings.filter);
 	setPressureOverSample(settings.pressOverSample);
 	setHumidityOverSample(settings.humidOverSample);
 	setTempOverSample(settings.tempOverSample);
 	
 	// start the sensor
-	setMode(BME280_MODE_NORMAL);
+	// setMode(BME280_MODE_NORMAL);
+	setMode(settings.runMode);
 	
 	// check for sensor ok
 	status = readRegisterReturn(settings.I2CAddress, BME280_CHIP_ID_REG);
