@@ -27,6 +27,36 @@ int envComboSetup() {
     return status;
 }
 
+
+int envBmeSetup() {
+    int status;
+
+    status = bme280_setup(   
+                BME280_I2C_DEV_ADDR,    // I2C device addr
+                BME280_MODE_NORMAL,     // runMode
+                0,      // tStandby
+                4,      // filter
+                5,      // tempOverSample
+                5,      // pressOverSample
+                5       // humidOverSample
+            );
+	
+    return status;
+}
+
+
+
+int envBmeRead(float *temp, float *humidity, float *pressure) {
+    int status = EXIT_SUCCESS;
+    // read BME280 sensor
+    (*temp) = bme280_readTemperature();
+    (*humidity) = bme280_readHumidity();
+    (*pressure) = bme280_readPressure();
+    // convert pressure from Pa to kPa
+    (*pressure) = (*pressure) / 1000.0;
+    return status;
+}
+
 int envComboRead(float *temp, float *humidity, float *pressure, uint16_t *CO2, uint16_t *tVOC) {
     int status = EXIT_SUCCESS;
     int count = 0;

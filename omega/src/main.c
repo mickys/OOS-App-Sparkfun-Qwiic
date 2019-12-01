@@ -62,6 +62,31 @@ int envComboDevice(const char* identifier, const char* topic, int time, const ch
 	return status;
 }
 
+int envBmeDevice(const char* identifier, const char* topic, int time, const char* ds18cmd) {
+	int status;
+	float temp, humidity, pressure, ds18b20;
+	uint16_t CO2 = 0;
+	uint16_t tVOC = 0;
+	char *msgData = malloc(512 * sizeof(char));
+	
+	status = envBmeSetup();
+
+	// infinite loop
+	while (status == EXIT_SUCCESS) {
+		envBmeRead(&temp, &humidity, &pressure);
+		envReadDS18(ds18cmd, &ds18b20);
+		envComboGenerateJson(msgData, temp, humidity, pressure, CO2, tVOC, identifier, ds18b20);
+		// printf("msg: '%s'\n", msgData);
+		sendMessage(topic, msgData);
+		
+		usleep(ENV_COMBO_SLEEP_MS * time);
+	}
+	
+	free(msgData);
+	return status;
+}
+
+
 int vl53l1x_device(const char* identifier, const char* topic) {
 	int status;
 	uint16_t data;
@@ -189,6 +214,9 @@ int main(int argc, char *argv[]) {
 	}
 	else if (strcmp(argv[1], ENV_COMBO_DEV_NAME) == 0) {
 		status = envComboDevice(identifier, topic, time, ds18cmd);
+	}
+	else if (strcmp(argv[1], ENV_BME_DEV_NAME) == 0) {
+		status = envBmeDevice(identifier, topic, time, ds18cmd);
 	}
 	else if (strcmp(argv[1], VL53L1X_DEV_NAME) == 0) {
 		status = vl53l1x_device(identifier, topic);

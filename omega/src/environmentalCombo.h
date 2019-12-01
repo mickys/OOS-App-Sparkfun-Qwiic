@@ -5,6 +5,7 @@
 
 
 #define ENV_COMBO_DEV_NAME            "ENV_COMBO"
+#define ENV_BME_DEV_NAME              "ENV_BME"
 
 #define ENV_COMBO_I2C_DEV_NUM 		0
 #define ENV_COMBO_I2C_DEV_ADDR 		0x69
@@ -24,8 +25,10 @@
 
 // functions
 int envComboSetup();
+int envBmeSetup();
 
 int envComboRead(float *temp, float *humidity, float *pressure, uint16_t *CO2, uint16_t *tVOC);
+int envBmeRead(float *temp, float *humidity, float *pressure);
 int envReadDS18(const char* ds18cmd, float* ds18b20);
 void envComboGenerateJson(char *json, float temp, float humidity, float pressure, uint16_t CO2, uint16_t tVOC, const char* identifier, float ds18b20);
 
