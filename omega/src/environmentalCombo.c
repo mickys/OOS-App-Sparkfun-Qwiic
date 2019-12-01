@@ -32,7 +32,7 @@ int envBmeSetup() {
     int status;
 
     status = bme280_setup(   
-                BME280_I2C_DEV_ADDR,    // I2C device addr
+                0x76,    // I2C device addr
                 BME280_MODE_NORMAL,     // runMode
                 0,      // tStandby
                 4,      // filter
