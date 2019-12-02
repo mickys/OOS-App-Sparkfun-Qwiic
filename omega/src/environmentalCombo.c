@@ -33,12 +33,12 @@ int envBmeSetup() {
 
     status = bme280_setup(   
                 0x76,    // I2C device addr
-                BME280_MODE_FORCED,     // runMode
+                BME280_MODE_NORMAL,     // runMode
                 0,      // tStandby
                 4,      // filter
-                1,      // tempOverSample orig 5
-                1,      // pressOverSample orig 5
-                1       // humidOverSample orig 5
+                5,      // tempOverSample orig 5
+                5,      // pressOverSample orig 5
+                5       // humidOverSample orig 5
             );
 	
     return status;
