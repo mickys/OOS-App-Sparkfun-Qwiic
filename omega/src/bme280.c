@@ -206,9 +206,9 @@ float bme280_readTemperature( void )
     // onion.io: assuming this type of byte alignment when reading: 2,1,0
     // int32_t adc_T = ((uint32_t)buffer[2] << 12) | ((uint32_t)buffer[1] << 4) | ((buffer[0] >> 4) & 0x0F);
     int32_t adc_T = ((uint32_t)buffer[0] << 12) | ((uint32_t)buffer[1] << 4) | ((buffer[2] >> 4) & 0x0F);
-// #if BME280_DEBUG == 1
+#if BME280_DEBUG == 1
     printf("temp read: 0x%02x, 0x%02x, 0x%02x; adc_T = 0x%08x\n", buffer[0], buffer[1], buffer[2], adc_T);
-// #endif // BME280_DEBUG
+#endif // BME280_DEBUG
 
     //By datasheet, calibrate
     int64_t var1, var2;
@@ -235,9 +235,9 @@ float bme280_readHumidity( void )
     // int32_t adc_H = ((uint32_t)buffer[1] << 8) | ((uint32_t)buffer[0]);
     int32_t adc_H = ((uint32_t)buffer[0] << 8) | ((uint32_t)buffer[1]);
     
-// #if BME280_DEBUG == 1
+#if BME280_DEBUG == 1
     printf("humidity read: 0x%02x, 0x%02x; adc_H = 0x%08x\n", buffer[0], buffer[1], adc_H);
-// #endif // BME280_DEBUG
+#endif // BME280_DEBUG
     
     int32_t var1;
     var1 = (t_fine - ((int32_t)76800));
@@ -263,9 +263,9 @@ float bme280_readPressure( void )
 // 	int32_t adc_P = ((uint32_t)buffer[2] << 12) | ((uint32_t)buffer[1] << 4) | ((buffer[0] >> 4) & 0x0F);
     int32_t adc_P = ((uint32_t)buffer[0] << 12) | ((uint32_t)buffer[1] << 4) | ((buffer[2] >> 4) & 0x0F);
     
-// #if BME280_DEBUG == 1
+#if BME280_DEBUG == 1
     printf("pressure read: 0x%02x, 0x%02x, 0x%02x; adc_P = 0x%08x\n", buffer[0], buffer[1], buffer[2], adc_P);
-// #endif // BME280_DEBUG
+#endif // BME280_DEBUG
 	
 	int64_t var1, var2, p_acc;
 	var1 = ((int64_t)t_fine) - 128000;
