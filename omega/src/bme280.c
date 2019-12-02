@@ -187,7 +187,7 @@ int bme280_setup(int devAddr, int runMode, int tStandby, int filter, int tempOve
 	
 	// check for sensor ok
 	status = readRegisterReturn(settings.I2CAddress, BME280_CHIP_ID_REG);
-	if (status == 0x60) {
+	if (status == 0x60 || status == 0x58) {
 	    return EXIT_SUCCESS;
 	} else {
 	    return EXIT_FAILURE;
